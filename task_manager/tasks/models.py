@@ -9,7 +9,11 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-
+    class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+# -----------------------------------------------------------------------
 class Task(models.Model):
     STATUS_CHOICES = [
         ('NEW', 'New'),
@@ -29,6 +33,13 @@ class Task(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        db_table = 'task_manager_task'
+        ordering = ['-created_at']
+        verbose_name = 'Task'
+        verbose_name_plural = 'Tasks'
+        unique_together = ['title', 'deadline']
+
     def save(self, *args, **kwargs):
         if not self.pk:  # Только для новых объектов
             # Проверяем, существует ли задача с таким же названием и датой дедлайна
@@ -40,7 +51,7 @@ class Task(models.Model):
                 raise ValidationError('A task with this title already exists for the given deadline date.')
         super().save(*args, **kwargs)
 
-
+# -----------------------------------------------------------------------
 class SubTask(models.Model):
     STATUS_CHOICES = [
         ('NEW', 'New'),
@@ -59,3 +70,10 @@ class SubTask(models.Model):
 
     def __str__(self):
         return f"{self.task.title} - {self.title}"
+
+    class Meta:
+        db_table = 'task_manager_subtask'
+        ordering = ['-created_at']
+        verbose_name = 'SubTask'
+        verbose_name_plural = 'SubTasks'
+        unique_together = ['title', 'task']
