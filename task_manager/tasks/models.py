@@ -78,3 +78,4 @@ class SubTask(models.Model):
         verbose_name = 'SubTask'
         verbose_name_plural = 'SubTasks'
         unique_together = ['title', 'task']
+
