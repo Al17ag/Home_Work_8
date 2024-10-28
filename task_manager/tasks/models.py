@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 import sqlite3
 
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -30,7 +31,7 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks')
     def __str__(self):
         return self.title
 
@@ -68,7 +69,7 @@ class SubTask(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subtasks')
     def __str__(self):
         return f"{self.task.title} - {self.title}"
 

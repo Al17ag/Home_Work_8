@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from rest_framework import generics, pagination
+from rest_framework.response import Response
+
 from .models import Task
 from .models import SubTask
+from .permissions import IsOwner
 from .serializers import SubTaskSerializer, SubTaskCreateSerializer, TaskCreateSerializer, TaskDetailSerializer
 from django_filters import rest_framework as filters  # pip install django-filter
-
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 # Пагинация
 class TaskPagination(pagination.PageNumberPagination):
@@ -45,12 +49,16 @@ class TaskListCreateView(generics.ListCreateAPIView): # Представлени
     pagination_class = TaskPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = TaskFilter
+    permission_classes = [IsAuthenticated] # Только авторизованные пользователи могут создавать задачи
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user) # Устанавливаем текущего пользователя как владельца
 
 # Представление для получения, обновления и удаления задач
 class TaskDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskDetailSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
 
 
 # Представление для списка и создания подзадач
@@ -60,6 +68,10 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
     pagination_class = SubTaskPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = SubTaskFilter
+    permission_classes = [IsAuthenticated] # Только авторизованные пользователи могут создавать подзадачи
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)  # Устанавливаем текущего пользователя как владельца
 
 class SubTaskListCreateView(generics.ListCreateAPIView):
     queryset = SubTask.objects.all()
@@ -73,3 +85,13 @@ class SubTaskListCreateView(generics.ListCreateAPIView):
 class SubTaskDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+
+class UserTasksView(APIView):  # {{ edit_1 }}
+    permission_classes = [IsAuthenticated]  # {{ edit_2 }}
+
+    def get(self, request):  # {{ edit_3 }}
+        tasks = Task.objects.filter(owner=request.user)  # {{ edit_4 }}
+        serializer = TaskDetailSerializer(tasks, many=True)  # {{ edit_5 }}
+        return Response(serializer.data)  # {{ edit_6 }}
+

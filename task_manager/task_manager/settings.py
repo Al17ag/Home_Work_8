@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'task_manager',  # Исправлено: добавлена запятая
     'django_filters',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

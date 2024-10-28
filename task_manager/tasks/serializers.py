@@ -6,7 +6,7 @@ from django.utils import timezone
 class SubTaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'task', 'created_at']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'task', 'created_at', 'owner']
         read_only_fields = ['created_at']
 
 class CategoryCreateSerialalizer(serializers.ModelSerializer):
@@ -29,7 +29,7 @@ class CategoryCreateSerialalizer(serializers.ModelSerializer):
 class SubTaskSerializer(serializers.ModelSerializer): # сериализатор определяет, какие поля подзадачи будут отображаться
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at', 'owner']
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at', 'subtasks']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at', 'subtasks', 'owner']
 
 
 # Задание 4: Валидация данных в сериализаторах
@@ -46,7 +46,7 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'categories']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'categories', 'owner']
 
     def validate_deadline(self, value):
         if value < timezone.now():
